@@ -2,6 +2,7 @@
 var exec = require('child_process').exec;
 var child;
 var PORT = 1337;
+var QUEUE = 'sayserv'; 
 
 var msg = "Say Server: /voice/message or /message\n\n" +
     "Agnes               en_US    # Isn't it nice to have a computer that will talk to you?\n" +
@@ -37,23 +38,23 @@ var mdns = require('mdns');
 var dns = require('dns');
 
 // advertise a http server on port 4321
-var ad = mdns.createAdvertisement(mdns.tcp('sayserv'), 4321);
+var ad = mdns.createAdvertisement(mdns.tcp(QUEUE), 4321);
 ad.start();
 
 // watch all http servers
-var browser = mdns.createBrowser(mdns.tcp('sayserv'));
+var browser = mdns.createBrowser(mdns.tcp(QUEUE));
 browser.on('serviceUp', function(service) {
-  //  console.log("service up: ", service);
+  //	console.log("service up: ", service);
   var broadcast_count = sayservs[service.name] ? ( sayservs[service.name].broadcast_count || 0 ) + 1 : 1;
   sayservs[service.name] = service;
   sayservs[service.name].broadcast_count = broadcast_count;
   console.log("service up: %s [count:%s]", service.name, sayservs[service.name].broadcast_count);
-    });
+});
 browser.on('serviceDown', function(service) {
   sayservs[service.name].broadcast_count = sayservs[service.name].broadcast_count - 1;
   console.log("service down: %s [count:%s]", service.name, sayservs[service.name].broadcast_count);
   if (sayservs[service.name].broadcast_count < 1) delete sayservs[service.name];
-    });
+});
 browser.start();
 
 // discover all available service types
@@ -61,55 +62,52 @@ browser.start();
 
 
 var activeServices = function(request, response) {
-    response.writeHead(200, {'Content-Type': 'text/plain'});
-    response.write("Services:\n\n");
-    for(var key in sayservs) {
-  response.write(sayservs[key].host + ':' + PORT + '\n');
-    }
-    response.end();
+  response.writeHead(200, {'Content-Type': 'text/plain'});
+  response.write("Services:\n\n");
+  for(var key in sayservs) {
+    response.write(sayservs[key].host + ':' + PORT + '\n');
+  }
+  response.end();
 };
 
 
 var broadcastMessage = function(request, response) {
-    response.writeHead(200, {'Content-Type': 'text/plain'});
-    response.write("Broadcasting to Services:\n\n");
-    for(var key in sayservs) {
-  var options = {
+  response.writeHead(200, {'Content-Type': 'text/plain'});
+  response.write("Broadcasting to Services:\n\n");
+  for(var key in sayservs) {
+    var options = {
       host: sayservs[key].host,
       port: PORT,
       path: request.url.replace('/broadcast/', '/'),
       method: 'GET'
-  };
-  
-  var req = http.request(options, function(res) {
-    res.setEncoding('utf8');
-    res.on('end', function (chunk) {
-      console.log('Message sent to ' + sayservs[key].host );
-        });
+    };
+    
+    var req = http.request(options, function(res) {
+      res.setEncoding('utf8');
+      res.on('end', function (chunk) {
+        console.log('Message sent to ' + sayservs[key].host );
       });
-  req.on('error', function(e) {
-    console.log('Problem with request to ' + sayservs[key].host + ': ' + e.message);
-      });
-  // finish request
-  req.end();
-  
-  response.write(sayservs[key].host + ':' + PORT + '\n');
-    }
-    response.end();
+    });
+    req.on('error', function(e) {
+      console.log('Problem with request to ' + sayservs[key].host + ': ' + e.message);a
+    });
+    // finish request
+    req.end();
+    response.write(sayservs[key].host + ':' + PORT + '\n');
+  }
+  response.end();
 };
   
 var http = require('http');
 http.createServer(function (request, response) {
   // ignore favicon requests
   if (request.url === "/favicon.ico") return;
-  
   if (request.url === "/browser") return activeServices(request, response);
-  
   if (request.url.match(/^\/broadcast\//)) return broadcastMessage(request, response);
-  
+
   // send voices / instructions
   response.writeHead(200, {'Content-Type': 'text/plain'});
-  response.end(msg);
+  response.end(msg);	
   
   var segments = request.url.split('/');
   var message = segments[segments.length - 1];
@@ -120,7 +118,6 @@ http.createServer(function (request, response) {
   voice = decodeURIComponent(voice).replace(/\W/g,' ');
   var cmd = "say " + (voice ? "-v " + voice + ' ' : '')  + message;
   child = exec(cmd);
-
   dns.reverse(host, function(err, domains) {
     if( err == null ) {
       console.log('[' + domains + '] cmd: ' + cmd);
@@ -128,8 +125,7 @@ http.createServer(function (request, response) {
       console.log('[' + host + '] cmd: ' + cmd);
     }
   });
-
-    }).listen(PORT, '0.0.0.0');
+}).listen(PORT, '0.0.0.0');
 console.log('Server running at http://0.0.0.0:' + PORT);
 
 
