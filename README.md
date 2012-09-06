@@ -5,8 +5,8 @@ Expose the say server on your mac (yes sorry, its mac only..although you could t
 
 ## Installation
 
-1. Have node js installed.
-2. npm install mdns
+1. Have node js installed. 
+2. Have mdns installed (for peer discovery) `npm install mdns`
 3. run the server with `node sayserv.js`
 
 ## Usage
