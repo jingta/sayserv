@@ -7,16 +7,16 @@ Expose the say server on your mac (yes sorry, its mac only..although you could t
 
 1. Have node js installed.
 2. npm install mdns
-3. run the server with node sayserv.js
+3. run the server with `node sayserv.js`
 
 ## Usage
 
 Server will listen on port 1337 by default (just a const in the script)
 
 * /browse - Show all other devices running sayserv on the network
-* /<message> - Play the given message on the machine
-* /<voice>/<message> - Play the given message on the machine using the given voice
-* /broadcast/<voice>/<message> - Play the given message on all machines on the network running sayserv
+* /:message - Play the given message on the machine
+* /:voice/:message - Play the given message on the machine using the given voice
+* /broadcast/:voice/:message - Play the given message on all machines on the network running sayserv
 
 
 ### Next
