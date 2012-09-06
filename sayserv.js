@@ -4,7 +4,7 @@ var child;
 var PORT = 1337;
 var QUEUE = 'sayserv'; 
 
-var msg = "Say Server: /voice/message or /message\n\n" + 
+var msg = "Say Server: /voice/message or /message\n\n" +
     "Agnes               en_US    # Isn't it nice to have a computer that will talk to you?\n" +
     "Albert              en_US    #  I have a frog in my throat. No, I mean a real frog!\n" +
     "Alex                en_US    # Most people recognize me by my voice.\n" +
@@ -35,6 +35,7 @@ var sayservs = {};
 
 // import the module
 var mdns = require('mdns');
+var dns = require('dns');
 
 // advertise a http server on port 4321
 var ad = mdns.createAdvertisement(mdns.tcp(QUEUE), 4321);
@@ -44,7 +45,7 @@ ad.start();
 var browser = mdns.createBrowser(mdns.tcp(QUEUE));
 browser.on('serviceUp', function(service) {
   //	console.log("service up: ", service);
-  var broadcast_count = sayservs[service.name] ? sayservs[service.name].broadcast_count + 1 : 1;
+  var broadcast_count = sayservs[service.name] ? ( sayservs[service.name].broadcast_count || 0 ) + 1 : 1;
   sayservs[service.name] = service;
   sayservs[service.name].broadcast_count = broadcast_count;
   console.log("service up: %s [count:%s]", service.name, sayservs[service.name].broadcast_count);
@@ -96,7 +97,7 @@ var broadcastMessage = function(request, response) {
   }
   response.end();
 };
-	
+  
 var http = require('http');
 http.createServer(function (request, response) {
   // ignore favicon requests
@@ -111,12 +112,19 @@ http.createServer(function (request, response) {
   var segments = request.url.split('/');
   var message = segments[segments.length - 1];
   var voice = segments[segments.length - 2];
+  var host = request.connection.remoteAddress;
   
   message = decodeURIComponent(message).replace(/\W/g,' ');
   voice = decodeURIComponent(voice).replace(/\W/g,' ');
   var cmd = "say " + (voice ? "-v " + voice + ' ' : '')  + message;
   child = exec(cmd);
-  console.log(request.connection.remoteAddress +' sent cmd: ' + cmd);
+  dns.reverse(host, function(err, domains) {
+    if( err == null ) {
+      console.log('[' + domains + '] cmd: ' + cmd);
+    } else {
+      console.log('[' + host + '] cmd: ' + cmd);
+    }
+  });
 }).listen(PORT, '0.0.0.0');
 console.log('Server running at http://0.0.0.0:' + PORT);
 
