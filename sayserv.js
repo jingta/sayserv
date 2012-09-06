@@ -42,12 +42,23 @@ ad.start();
 // watch all http servers
 var browser = mdns.createBrowser(mdns.tcp('sayserv'));
 browser.on('serviceUp', function(service) {
+	console.log("service up: ", service.name);
+	//	console.log("service up: ", service);
+	var service_count = sayservs[service.name] ? sayservs[service.name].count + 1 : 1;
 	sayservs[service.name] = service;
-	console.log("service up: ", service.host);
+	sayservs[service.name].count = service_count;
+	console.log("service up: ", service.name, sayservs[service.name].count);
     });
+browser.on('serviceChanged', function(service) {
+	//sayservs[service.name] = service;
+	console.log("service changed: ", service.name);
+    });
+
 browser.on('serviceDown', function(service) {
-	delete sayservs[service.name];
-	console.log("service down: ", service.host);
+	console.log("service down: ", service.name);
+	sayservs[service.name].count = 	sayservs[service.name].count - 1;
+	console.log("service down: ", sayservs[service.name].count);
+	if (sayservs[service.name].count < 1) delete sayservs[service.name];
     });
 browser.start();
 
