@@ -13,7 +13,7 @@ Expose the say server on your mac (yes sorry, its mac only..although you could t
 
 Server will listen on port 1337 by default (just a const in the script)
 
-* /browse - Show all other devices running sayserv on the network
+* /browser - Show all other devices running sayserv on the network
 * /:message - Play the given message on the machine
 * /:voice/:message - Play the given message on the machine using the given voice
 * /broadcast/:voice/:message - Play the given message on all machines on the network running sayserv
