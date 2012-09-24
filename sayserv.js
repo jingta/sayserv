@@ -6,7 +6,7 @@ var QUEUE = 'sayserv';
 
 var msg = "Say Server: /voice/message or /message\n\n" +
     "Agnes               en_US    # Isn't it nice to have a computer that will talk to you?\n" +
-    "Albert              en_US    #  I have a frog in my throat. No, I mean a real frog!\n" +
+    "Albert              en_US    # I have a frog in my throat. No, I mean a real frog!\n" +
     "Alex                en_US    # Most people recognize me by my voice.\n" +
     "Bad News            en_US    # The light you see at the end of the tunnel is the headlamp of a fast approaching train.\n" +
     "Bahh                en_US    # Do not pull the wool over my eyes.\n" +
@@ -28,7 +28,10 @@ var msg = "Say Server: /voice/message or /message\n\n" +
     "Vicki               en_US    # Isn't it nice to have a computer that will talk to you?\n" +
     "Victoria            en_US    # Isn't it nice to have a computer that will talk to you?\n" +
     "Whisper             en_US    # Pssssst, hey you, Yeah you, Who do ya think I'm talking to, the mouse?\n" +
-    "Zarvox              en_US    # That looks like a peaceful planet.\n";
+    "Zarvox              en_US    # That looks like a peaceful planet.\n" +
+    "\n\n" +
+    "/browser                     # Will show who is running sayserv on the local network\n" +
+    "/broadcast/*                 # Works as normal, but message goes out to everyone running sayserv";
 
 
 var sayservs = {};
