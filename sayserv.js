@@ -117,7 +117,8 @@ http.createServer(function (request, response) {
   var voice = segments[segments.length - 2];
   var host = request.connection.remoteAddress;
   
-  message = decodeURIComponent(message).replace(/\W/g,' ');
+  message = decodeURIComponent(message).replace(/[^a-zA-Z0-9\.\,\'\?\!]/g,' ')
+                                       .replace(/([\.\,\'\?\!])/g,'\\$1');
   voice = decodeURIComponent(voice).replace(/\W/g,' ');
   var cmd = "say " + (voice ? "-v " + voice + ' ' : '')  + message;
   child = exec(cmd);
