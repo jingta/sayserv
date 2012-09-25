@@ -92,7 +92,7 @@ var broadcastMessage = function(request, response) {
       });
     });
     req.on('error', function(e) {
-      console.log('Problem with request to ' + sayservs[key].host + ': ' + e.message);a
+      console.log('Problem with request to ' + sayservs[key].host + ': ' + e.message);
     });
     // finish request
     req.end();
